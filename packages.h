@@ -100,5 +100,12 @@ struct UdpHeader
     u_short check;		//16位检验和
 };
 
+struct IcmpHeader
+{
+    unsigned char type;
+    unsigned char code;
+    unsigned short checksum;
+    unsigned int rest_of_header;
+}
 
 #endif
