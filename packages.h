@@ -82,13 +82,13 @@ struct TcpHeader
     unsigned short    th_urp;//16位紧急数据偏移量
 };
 
-//伪头部，用于计算校验和？
+//伪头部，用于计算校验和
 struct Psdhdr {
-    unsigned long    saddr;
-    unsigned long    daddr;
-    char            mbz;
-    char            ptcl;
-    unsigned short    plen;
+    unsigned long    saddr;//32源地址
+    unsigned long    daddr;//32目的地址
+    char            mbz;//16 代表0
+    char            ptcl;//16代表协议号 UDP为17
+    unsigned short    plen;//16 TCP/UDP数据包长度
 };
 
 //UDP头部
