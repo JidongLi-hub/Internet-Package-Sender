@@ -1,3 +1,6 @@
+# 过滤项目配置文件
+.idea/
+
 # Prerequisites
 *.d
 
