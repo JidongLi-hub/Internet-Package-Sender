@@ -1,19 +1,23 @@
-//
-// Created by lijid on 2022/12/1.
-//
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#ifndef INTERNETPACKAGESENDER_PACKAGES_H
-#define INTERNETPACKAGESENDER_PACKAGES_H
+#include <QMainWindow>
+#include <QDebug>
+#include <QCoreApplication>
+//#pragma comment(lib,"Iphlpapi.lib")
+#include <iphlpapi.h>
 
 #pragma once
 #define HAVE_REMOTE
 #include "pcap.h"
 #include <QtWidgets/QMainWindow>
 #include "qstring.h"
-#include "ui_QtGuiApplication5.h"
-#pragma comment(lib,"wpcap.lib")
-#pragma comment(lib,"Packet.lib")
-#pragma comment(lib, "ws2_32.lib")
+//#pragma comment(lib,"wpcap.lib")
+#include <wpcapi.h>
+//#pragma comment(lib,"Packet.lib")
+#include <Packet32.h>
+//#pragma comment(lib, "ws2_32.lib")
+#include <ws2tcpip.h>
 #define ETH_ARP         0x0806  //以太网帧协议类型，对于ARP协议，该值为0x0806
 #define ARP_HARDWARE    1  //硬件类型字段，表示以太网地址
 #define ETH_IP          0x0800  //以太网帧协议类型，0x0800表示IP协议
@@ -24,6 +28,26 @@
 #define MAX_BUFF_LEN 65500
 using namespace std;
 
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+private slots:
+    void send_clicked();
+
+private:
+    Ui::MainWindow *ui;
+    pcap_if_t *alldevs, *d;
+    char *errbuf=NULL;
+    pcap_t *adhandle=NULL;
+};
 
 //14字节 以太网首部
 struct EthernetHeader
@@ -82,13 +106,13 @@ struct TcpHeader
     unsigned short    th_urp;//16位紧急数据偏移量
 };
 
-//伪头部，用于计算校验和？
+//伪头部，用于计算校验和
 struct Psdhdr {
-    unsigned long    saddr;
-    unsigned long    daddr;
-    char            mbz;
-    char            ptcl;
-    unsigned short    plen;
+    unsigned long    saddr;//32源地址
+    unsigned long    daddr;//32目的地址
+    char            mbz;//16 代表0
+    char            ptcl;//16代表协议号 UDP为17
+    unsigned short    plen;//16 TCP/UDP数据包长度
 };
 
 //UDP头部
@@ -100,5 +124,14 @@ struct UdpHeader
     u_short check;		//16位检验和
 };
 
+//ICMP头部
+struct IcmpHeader
+{
+    unsigned char type;
+    unsigned char code;
+    unsigned short checksum;
+    unsigned int rest_of_header;
+};
 
-#endif
+
+#endif // MAINWINDOW_H
