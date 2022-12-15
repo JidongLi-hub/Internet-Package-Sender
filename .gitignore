@@ -37,3 +37,4 @@
 # Qt
 .qmake.stash
 build-Sniffer-*Debug
+.pro.user
