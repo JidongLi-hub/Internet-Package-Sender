@@ -1,3 +1,6 @@
+# 过滤项目配置文件
+.idea/
+
 # Prerequisites
 *.d
 
@@ -34,3 +37,4 @@
 # Qt
 .qmake.stash
 build-Sniffer-*Debug
+.pro.user
