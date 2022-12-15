@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "pcap.h"
 #include "QMessageBox"
+#include <QButtonGroup>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -56,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->dstMAC->clear();
         ui->dstMAC->setPlaceholderText("此项无需填写");
         ui->ttl->clear();
-        ui->ttl->setPlaceholderText("此项无需填写");
+        ui->ttl->setPlaceholderText("128");
         ui->sign->clear();
         ui->sign->setPlaceholderText("此项无需填写");
         ui->seq->clear();
@@ -165,18 +166,18 @@ void MainWindow::send_clicked()
 
         //封包
         //以太网
-        eh.DestMAC[0] = 0x8c;
-        eh.DestMAC[1] = 0xa6;
-        eh.DestMAC[2] = 0xdf;
-        eh.DestMAC[3] = 0x94;
-        eh.DestMAC[4] = 0x94;
-        eh.DestMAC[5] = 0x29;
-        eh.SourMAC[0] = 0x80;
-        eh.SourMAC[1] = 0x2b;
-        eh.SourMAC[2] = 0xf9;
-        eh.SourMAC[3] = 0x72;
-        eh.SourMAC[4] = 0x5f;
-        eh.SourMAC[5] = 0xad;
+        eh.DestMAC[0] = 0x9c;
+        eh.DestMAC[1] = 0x1d;
+        eh.DestMAC[2] = 0x36;
+        eh.DestMAC[3] = 0xec;
+        eh.DestMAC[4] = 0x8b;
+        eh.DestMAC[5] = 0xc2;
+        eh.SourMAC[0] = 0x8c;
+        eh.SourMAC[1] = 0xc6;
+        eh.SourMAC[2] = 0x81;
+        eh.SourMAC[3] = 0x96;
+        eh.SourMAC[4] = 0x51;
+        eh.SourMAC[5] = 0x09;
         eh.EthType = htons(ETH_IP);
 
         //ip头部
@@ -273,7 +274,8 @@ void MainWindow::send_clicked()
         ih.total_len = htons((unsigned short)(sizeof(IpHeader)+sizeof(UdpHeader)+bb.size()));//从ip一直到包末尾的总长度
         ih.ident = htons(1);
         ih.frag_and_flags = htons(0);
-        ih.ttl = ui->ttl->text().toInt();
+        //ih.ttl = ui->ttl->text().toInt();
+        ih.ttl = 128;
         ih.proto = PROTO_UDP;
         ih.checksum = 0;
         string te1 = ui->srcIP->text().toStdString();
