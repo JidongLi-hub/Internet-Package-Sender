@@ -76,6 +76,12 @@ MainWindow::MainWindow(QWidget *parent)
     {
         ui->srcMAC->setPlaceholderText("此项无需填写");
         ui->dstMAC->setPlaceholderText("此项无需填写");
+        ui->sport->clear();
+        ui->sport->setPlaceholderText("此项无需填写");
+        ui->dport->clear();
+        ui->dport->setPlaceholderText("此项无需填写");
+        ui->ttl->clear();
+        ui->ttl->setPlaceholderText("128");
     });
     connect(ui->ip,&QRadioButton::clicked,[this]()
     {
@@ -332,6 +338,84 @@ void MainWindow::send_clicked()
     /*ICMP协议 */
     else if (ui->icmp->isChecked())
     {
+
+        char *temp = new char[33];
+        strcpy(temp, "abcdefghigklmnopqrstuvwabcdefghi");//ping的数据部分固定32字节
+        EthernetHeader eh;
+        IpHeader ih;
+        IcmpHeader icmph;
+        u_char sendbuf[MAX_BUFF_LEN];
+
+        //封包
+        //以太网
+        eh.DestMAC[0] = 0x9c;
+        eh.DestMAC[1] = 0x1d;
+        eh.DestMAC[2] = 0x36;
+        eh.DestMAC[3] = 0xec;
+        eh.DestMAC[4] = 0x8b;
+        eh.DestMAC[5] = 0xc2;
+        eh.SourMAC[0] = 0x8c;
+        eh.SourMAC[1] = 0xc6;
+        eh.SourMAC[2] = 0x81;
+        eh.SourMAC[3] = 0x96;
+        eh.SourMAC[4] = 0x51;
+        eh.SourMAC[5] = 0x09;
+        eh.EthType = htons(ETH_IP);
+
+        //ip头部
+        ih.h_verlen = (4 << 4 | sizeof(ih) / sizeof(unsigned int));
+        ih.tos = 0;
+        ih.total_len = htons((unsigned short)(sizeof(IpHeader) + sizeof(IcmpHeader) + 32));
+        ih.ident = 1;
+        ih.frag_and_flags = 0x40;
+        ih.ttl = 128;
+        ih.proto = PROTO_ICMP;
+        ih.checksum = 0;
+        string te1 = ui->srcIP->text().toStdString();
+        string te2 = ui->dstIP->text().toStdString();
+        char *te11 = new char[te1.size() + 1];
+        char *te22 = new char[te2.size() + 1];
+        strcpy(te11, te1.c_str());
+        strcpy(te22, te2.c_str());
+        ih.sourceIP = inet_addr(te11);
+        ih.destIP = inet_addr(te22);
+
+        //ICMP报文创建，初步为ping request
+        icmph.code = 0x00;
+        icmph.type = 0x08;
+        icmph.icmp_id = 0x0100;
+        icmph.icmp_seq = 0x0100;
+        icmph.checksum=0;
+
+        //计算校验和ip头一个，ICMP头部加数据一个
+        memset(sendbuf, 0, sizeof(sendbuf));
+        memcpy(sendbuf, &icmph, sizeof(icmph));
+        memcpy(sendbuf + sizeof(icmph), temp, 32);
+        icmph.checksum = CheckSum((unsigned short *)sendbuf, sizeof(icmph) + 32);
+        memset(sendbuf, 0, sizeof(sendbuf));
+        memcpy(sendbuf, &ih, sizeof(ih));
+        ih.checksum = CheckSum((unsigned short *)sendbuf, sizeof(ih));
+
+        //封包
+        memset(sendbuf, 0, MAX_BUFF_LEN);
+        memcpy(sendbuf, (void *)&eh, sizeof(EthernetHeader));
+        memcpy(sendbuf + sizeof(EthernetHeader), (void *)&ih, sizeof(IpHeader));
+        memcpy(sendbuf + sizeof(EthernetHeader) + sizeof(IpHeader), (void *)&icmph, sizeof(IcmpHeader));
+        memcpy(sendbuf + sizeof(EthernetHeader) + sizeof(IpHeader)+sizeof(IcmpHeader), temp, 32);
+        int siz = sizeof(EthernetHeader) + sizeof(IpHeader) + sizeof(IcmpHeader) + 32;
+        //发送
+        if (pcap_sendpacket(adhandle, sendbuf, siz) == 0) {
+            QMessageBox::information(this,"提示","发送成功");
+            ui->terminal->setText("IMCP报文发送成功！");
+        }
+        else {
+            QMessageBox::information(this,"提示","发送失败");
+            ui->terminal->setText("ICMP报文发送失败！");
+        }
+
+
+
+
 
     }
 
