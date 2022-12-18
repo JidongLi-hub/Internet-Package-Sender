@@ -406,6 +406,3 @@ void MainWindow::send_clicked()
     }
 
 }
-
-
-

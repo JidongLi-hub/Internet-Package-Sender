@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     w.show();
 
     //测试winpacap的代码
+    /*
     pcap_if_t *alldevs;
     pcap_if_t *d;
     int i = 0;
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     for(d = alldevs; d; d = d->next)
     {
         qDebug() << ++i << d->name;
+        qDebug() << d->addresses;
         if(d->description)
             qDebug() << d->description;
         else
@@ -29,6 +31,6 @@ int main(int argc, char *argv[])
         qDebug("No interfaces found! Make sure WinPcap is installed.");
     }
     pcap_freealldevs(alldevs);
-
+    */
     return a.exec();
 }
