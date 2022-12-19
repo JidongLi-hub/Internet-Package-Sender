@@ -25,6 +25,7 @@
 #define ARP_RESPONSE       2      //ARP响应
 #define PROTO_TCP 6   //TCP协议
 #define PROTO_UDP 17  //UDP协议
+#define PROTO_ICMP 1
 #define MAX_BUFF_LEN 65500
 using namespace std;
 
@@ -130,7 +131,8 @@ struct IcmpHeader
     unsigned char type;
     unsigned char code;
     unsigned short checksum;
-    unsigned int rest_of_header;
+    unsigned short icmp_id;
+    unsigned short icmp_seq;
 };
 
 
