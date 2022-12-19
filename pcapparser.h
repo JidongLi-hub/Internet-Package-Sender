@@ -75,6 +75,16 @@ struct TCPHeader_t
     uint16_t UrgPtr;           // 紧急指针
 };
 
+struct ICMPHeader_t
+{
+    unsigned char type;
+    unsigned char code;
+    unsigned short CheckSum;
+    unsigned short icmp_id;
+    unsigned short icmp_seq;
+
+};
+
 #pragma pack()
 
 class PcapParser
@@ -84,6 +94,8 @@ private:
     uint32_t mUdpLen;
     char mTcpData[4096];             // 4k缓存
     uint32_t mTcpLen;
+    char mIcmpData[4096];             // 4k缓存
+    uint32_t mIcmpLen;
 
     uint32_t mPackIndex;
 
@@ -91,9 +103,11 @@ private:
     void ipDecode(const char* buf);
     void udpDecode(const char* buf, int len);
     void tcpDecode(const char* buf, int len);
+    void icmpDecode(const char* buf,int len);
+    void arpDecode(const char* buf, int len);
 
 public:
-    PcapParser() : mUdpLen(0), mTcpLen(0) { }
+    PcapParser() : mUdpLen(0), mTcpLen(0),mIcmpLen(0) { }
     ~PcapParser(){}
 public:
     // 过滤Ip
