@@ -80,6 +80,7 @@ void PcapParser::tcpDecode(const char* buf, int len)
         memcpy(mTcpData, mTcpData + usedLen, usedLen);
         mTcpLen -= usedLen;
     }
+     printf("the data is %s\n",mTcpData);
 }
 
 // udp协议解析
@@ -105,7 +106,7 @@ void PcapParser::udpDecode(const char* buf, int len)
     // 存到缓存,用来做粘包,半包处理
     memcpy(mUdpData + mUdpLen, buf + offset, dataLen);
     mUdpLen += dataLen;
-
+    printf("the data is %s\n",mUdpData);
     // 用户数据
     int usedLen = onUdpMsg(mUdpData, mUdpLen);
     if (usedLen > 0)
@@ -113,6 +114,8 @@ void PcapParser::udpDecode(const char* buf, int len)
         memcpy(mUdpData, mUdpData + usedLen, usedLen);
         mUdpLen -= usedLen;
     }
+    //printf("the data is %d\n",mUdpData[0]);
+
 }
 
 // IP 协议解析
@@ -148,11 +151,41 @@ void PcapParser::ipDecode(const char* buf)
         case 6: // TCP协议
             tcpDecode(buf + offset, ipPackLen - sizeof(IPHeader_t));
             break;
+        case 1: //ICMP协议
+            icmpDecode(buf + offset,ipPackLen - sizeof(IPHeader_t) );
         default:
             printf("[%s:%d]unsupported protocol %#x\n", __FILE__, __LINE__,
                    ipHeader->Protocol);
             break;
     }
+}
+
+void PcapParser::icmpDecode(const char* buf,int len)
+{
+    int offset = 0;
+    ICMPHeader_t* icmpHeader = (ICMPHeader_t*)(buf + offset);
+    offset += sizeof(ICMPHeader_t);
+
+    uint8_t type = icmpHeader->type;
+    uint16_t code = ntohs(icmpHeader->code);
+    uint16_t identifier = ntohs(icmpHeader->icmp_id);
+    uint16_t seq = ntohs(icmpHeader->icmp_seq);
+
+    // 用户数据长度
+    uint16_t dataLen = 32;
+    memcpy(mIcmpData + mIcmpLen, buf + offset, dataLen);
+    mIcmpLen += dataLen;
+    printf("the data is %s\n",mIcmpData);
+    // 用户数据
+    int usedLen = onUdpMsg(mIcmpData, mIcmpLen);
+    if (usedLen > 0)
+    {
+        memcpy(mUdpData, mUdpData + usedLen, usedLen);
+        mIcmpLen -= usedLen;
+    }
+
+
+
 }
 
 void PcapParser::parse(const char* filename)

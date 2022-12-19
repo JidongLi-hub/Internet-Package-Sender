@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     //测试解析pcap文件的代码
     char* arg = new char[60];
-    strcpy(arg,"../Internet-Package-Sender/pcapeg/test.pcap");
+    strcpy(arg,"../Internet-Package-Sender/pcapeg/icmp_test.pcap");
     MsgParser parser;
     parser.parse(arg);
     printf("total quote count:%d\n", parser.getCount());
