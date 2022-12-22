@@ -4,10 +4,28 @@
 #include "QMessageBox"
 #include <QButtonGroup>
 
+Pack_Node *root;//读入的包链表根结点
+Pack_Node *packs;//读入的包链表变动结点
+
+//析构函数用来释放存储了包文件的那部分空间，避免内存泄漏
+MainWindow::~MainWindow()
+{
+
+    while(root!=NULL)
+    {
+        packs = root;
+        root = root->next;
+        delete packs;
+    }
+    packs = root = NULL;
+    delete ui;
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
     /* 获取本机设备列表 */
     if (pcap_findalldevs_ex((char*)PCAP_SRC_IF_STRING, NULL, &alldevs, errbuf) == -1)
@@ -74,7 +92,9 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(ui->icmp,&QRadioButton::clicked,[this]()
     {
+        ui->srcMAC->clear();
         ui->srcMAC->setPlaceholderText("此项无需填写");
+        ui->dstMAC->clear();
         ui->dstMAC->setPlaceholderText("此项无需填写");
         ui->sport->clear();
         ui->sport->setPlaceholderText("此项无需填写");
@@ -82,6 +102,11 @@ MainWindow::MainWindow(QWidget *parent)
         ui->dport->setPlaceholderText("此项无需填写");
         ui->ttl->clear();
         ui->ttl->setPlaceholderText("128");
+
+        ui->srcIP->setText("");
+        ui->dstIP->setText("");
+
+
     });
     connect(ui->ip,&QRadioButton::clicked,[this]()
     {
@@ -114,7 +139,120 @@ MainWindow::MainWindow(QWidget *parent)
 
     //设置发送函数
     connect(ui->send,  SIGNAL(clicked()), this, SLOT(send_clicked()));
+    //打开按钮
+    connect(ui->action_Open,&QAction::triggered,this,&MainWindow::Open);
+    ui->package_table->setVisible(false);
+    //表格双击打开包
+    connect(ui->package_table, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(DoubleClicked(const QModelIndex &)));
 
+}
+void MainWindow::DoubleClicked(const QModelIndex &index)
+{
+    QModelIndex Index = ui->package_table->currentIndex();
+    unsigned int num = Index.row()+1;
+    Pack_Node *temp = root->next;
+    while(temp->id!=num)
+    {
+        temp=temp->next;
+    }
+
+    if(temp->protocol == "TCP")
+    {
+        ui->tcp->setChecked(true);
+        ui->sport->setText(temp->sport);
+        ui->dport->setText(temp->dport);
+        ui->seq->setText(temp->seq);
+        ui->ack->setText(temp->ack);
+        ui->window->setText(temp->window);
+        ui->srcIP->setText(temp->srcIP);
+        ui->dstIP->setText(temp->dstIP);
+        ui->srcMAC->setText(temp->srcMAC);
+        ui->dstMAC->setText(temp->dstMAC);
+        ui->data->setText(temp->data);
+
+    }
+    else if(temp->protocol == "UDP")
+    {
+        ui->udp->setChecked(true);
+        ui->sport->setText(temp->sport);
+        ui->dport->setText(temp->dport);
+        ui->srcIP->setText(temp->srcIP);
+        ui->dstIP->setText(temp->dstIP);
+        ui->srcMAC->setText(temp->srcMAC);
+        ui->dstMAC->setText(temp->dstMAC);
+        ui->data->setText(temp->data);
+    }
+    else if(temp->protocol == "ICMP")
+    {
+
+    }
+    else if(temp->protocol == "ARP")
+    {
+
+    }
+
+    ui->package_table->setVisible(false);
+}
+
+//打开文件函数，打开一个pcap文件，并创建一个对象
+void MainWindow::Open()
+{
+    //QCoreApplication::applicationFilePath()此函数获取当前路径，返回QString对象
+    QString fileName = QFileDialog::getOpenFileName(this, "请选择一个文件",
+                                 QCoreApplication::applicationFilePath(),"*.pcap");
+    if(fileName.isEmpty())
+    {
+        QMessageBox::information(this, "提示", "您必须选择一个文件");
+    }
+    else
+    {
+        qDebug() << fileName;
+        //测试解析pcap文件的代码
+        QByteArray ba2 = fileName.toLatin1();
+        const char *file_name = ba2.data();
+
+        parser.parse(file_name);
+
+        qDebug() << parser.getCount();
+        model = new QStandardItemModel(parser.packnum(),3,this);
+        QStringList  h_lables,v_lables;
+        h_lables<<"source" << "destination" << "protocol";
+        model->setHorizontalHeaderLabels(h_lables);
+        for(unsigned int i=1;i<=parser.packnum();i++)
+        {
+            v_lables<<QString::number(i);
+        }
+        model->setVerticalHeaderLabels(v_lables);
+        ui->package_table->setModel(model);
+        ui->package_table->setVisible(true);
+
+        //显示包的信息
+        Pack_Node *temp = root->next;
+        while(temp!=NULL)
+        {
+            if(temp->protocol == "TCP")
+            {
+                model->setItem(temp->id-1,0,new QStandardItem(temp->srcIP+":"+temp->sport));
+                model->setItem(temp->id-1,1,new QStandardItem(temp->dstIP+":"+temp->dport));
+                model->setItem(temp->id-1,2,new QStandardItem(temp->protocol));
+            }
+            else if(temp->protocol == "UDP")
+            {
+                model->setItem(temp->id-1,0,new QStandardItem(temp->srcIP+":"+temp->sport));
+                model->setItem(temp->id-1,1,new QStandardItem(temp->dstIP+":"+temp->dport));
+                model->setItem(temp->id-1,2,new QStandardItem(temp->protocol));
+            }
+            else if(temp->protocol == "ICMP")
+            {
+
+            }
+            else if(temp->protocol == "ARP")
+            {
+
+            }
+            temp = temp->next;
+        }
+    }
 }
 
 //计算检验和
@@ -135,10 +273,7 @@ unsigned short CheckSum(unsigned short * buffer, int size)
     return (unsigned short)(~cksum);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+
 void MainWindow::send_clicked()
 {
     int netnum = ui->comboBox_netcard->currentIndex()+1;

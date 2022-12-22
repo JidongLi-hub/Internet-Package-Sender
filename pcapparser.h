@@ -97,7 +97,7 @@ private:
     char mIcmpData[4096];             // 4k缓存
     uint32_t mIcmpLen;
 
-    uint32_t mPackIndex;
+    uint32_t mPackIndex;//含包总数
 
 
     void ipDecode(const char* buf);
@@ -122,6 +122,11 @@ public:
 
     // pcap文件解析
     void parse(const char* filename);
+    //返回包个数
+    unsigned int packnum()
+    {
+        return mPackIndex;
+    }
 };
 
 #endif // PCAPPARSER_H

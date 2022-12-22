@@ -667,6 +667,16 @@
      <string>  Terminal</string>
     </property>
    </widget>
+   <widget class="QTableView" name="package_table">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>1171</width>
+      <height>571</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

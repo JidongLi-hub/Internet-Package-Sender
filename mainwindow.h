@@ -3,9 +3,16 @@
 
 #include <QMainWindow>
 #include <QDebug>
+#include <QFileDialog>
 #include <QCoreApplication>
 //#pragma comment(lib,"Iphlpapi.lib")
 #include <iphlpapi.h>
+#include <QApplication>
+#include "pcapparser.h"
+#include <time.h>
+#include <string.h>
+#include <QTableView>
+#include <QStandardItemModel>
 
 #pragma once
 #define HAVE_REMOTE
@@ -33,6 +40,47 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+class MsgParser : public PcapParser
+{
+private:
+    int mCount;
+public:
+    MsgParser()
+    {
+        mCount = 0;
+    }
+
+public:
+    int getCount() { return mCount; }
+    int onUdpMsg(const char* buf, int len)
+    {
+        // do something
+        return len;
+    }
+};
+//打开文件数据包链表
+struct Pack_Node
+{
+    unsigned int id;
+    QString protocol;
+    QString sport;
+    QString dport;
+    QString seq;
+    QString ack;
+    QString sign;
+    QString window;
+    QString srcIP;
+    QString dstIP;
+    QString ttl;
+    QString srcMAC;
+    QString dstMAC;
+    QString data;
+
+    Pack_Node *next=NULL;
+
+};
+extern Pack_Node *root;//读入的包链表根结点
+extern Pack_Node *packs;//读入的包链表变动结点
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -42,12 +90,17 @@ public:
     ~MainWindow();
 private slots:
     void send_clicked();
+    void Open();
+    void DoubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
     pcap_if_t *alldevs, *d;
     char *errbuf=NULL;
     pcap_t *adhandle=NULL;
+    MsgParser parser; //读入的pcap文件
+    QStandardItemModel *model;
+
 };
 
 //14字节 以太网首部
@@ -134,6 +187,5 @@ struct IcmpHeader
     unsigned short icmp_id;
     unsigned short icmp_seq;
 };
-
 
 #endif // MAINWINDOW_H

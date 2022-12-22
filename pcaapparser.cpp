@@ -1,4 +1,4 @@
-#include "pcapParser.h"
+#include "pcapparser.h"
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -10,6 +10,23 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
+#include "mainwindow.h"
+
+//unsigned char转QString
+QString uncharToQstring(unsigned char * id,int len)
+{
+    QString temp,msg;
+    int j = 0;
+
+    while (j<len)
+    {
+        temp = QString("%1").arg((int)id[j], 2, 16, QLatin1Char('0'));
+        msg.append(temp);
+        j++;
+    }
+
+    return msg;
+}
 
 //实现windows下的字节地址转IP地址
 PCSTR WSAAPI inet_ntop(INT Family,const VOID *pAddr,PSTR pStringBuf, size_t  StringBufSize)
@@ -28,7 +45,7 @@ PCSTR WSAAPI inet_ntop(INT Family,const VOID *pAddr,PSTR pStringBuf, size_t  Str
             return NULL;
         }
     }
-    else if(Family == AF_INET)
+    else if(Family == AF_INET)//
     {
         //struct in_addr a;
         //memcpy(&a,pAddr,sizeof(struct in_addr));
@@ -48,6 +65,7 @@ PCSTR WSAAPI inet_ntop(INT Family,const VOID *pAddr,PSTR pStringBuf, size_t  Str
 
 void PcapParser::tcpDecode(const char* buf, int len)
 {
+    packs->protocol = "TCP";
     int offset = 0;
     TCPHeader_t* tcpHeader = (TCPHeader_t*)(buf + offset);
     offset += sizeof(TCPHeader_t);
@@ -56,7 +74,22 @@ void PcapParser::tcpDecode(const char* buf, int len)
     //uint16_t dstPort = tcpHeader->dstPort;
     uint16_t srcPort = ntohs(tcpHeader->srcPort);
     uint16_t dstPort = ntohs(tcpHeader->dstPort);
+    uint16_t win = ntohs(tcpHeader->WinSize);
+    uint32_t seq = ntohl(tcpHeader->SeqNo);
+    uint32_t ack = ntohl(tcpHeader->AckNo);
     //这里要注意网络字节顺序与X86字节顺序要做转换
+
+    int s = srcPort;
+    int d = dstPort;
+    int se = seq;
+    int ac = ack;
+    int window = win;
+
+    packs->sport = QString::number(s);
+    packs->dport = QString::number(d);
+    packs->seq = QString::number(se);
+    packs->ack = QString::number(ac);
+    packs->window = QString::number(window);
 
     // 用户数据长度
     uint16_t dataLen = len - sizeof(TCPHeader_t);
@@ -73,6 +106,10 @@ void PcapParser::tcpDecode(const char* buf, int len)
     memcpy(mTcpData + mTcpLen, buf + offset, dataLen);
     mTcpLen += dataLen;
 
+    char Data[500];
+    memcpy(Data,buf+offset,dataLen);
+    packs->data = QString(Data);
+
     // 用户数据
     int usedLen = onTcpMsg(mTcpData, mTcpLen);
     if (usedLen > 0)
@@ -86,6 +123,7 @@ void PcapParser::tcpDecode(const char* buf, int len)
 // udp协议解析
 void PcapParser::udpDecode(const char* buf, int len)
 {
+    packs->protocol = "UDP";
     int offset = 0;
     UDPHeader_t* udpHeader = (UDPHeader_t*)(buf + offset);
     offset += sizeof(UDPHeader_t);
@@ -93,6 +131,12 @@ void PcapParser::udpDecode(const char* buf, int len)
     uint16_t srcPort = ntohs(udpHeader->SrcPort);
     uint16_t dstPort = ntohs(udpHeader->DstPort);
     uint16_t packLen = ntohs(udpHeader->Length);
+
+    int s = srcPort;
+    int d = dstPort;
+
+    packs->sport = QString::number(s);
+    packs->dport = QString::number(d);
 
     // 用户数据长度
     uint16_t dataLen = packLen - sizeof(UDPHeader_t);
@@ -105,6 +149,11 @@ void PcapParser::udpDecode(const char* buf, int len)
 
     // 存到缓存,用来做粘包,半包处理
     memcpy(mUdpData + mUdpLen, buf + offset, dataLen);
+
+    char Data[500];
+    memcpy(Data,buf+offset,dataLen);
+    packs->data = QString(Data);
+
     mUdpLen += dataLen;
     printf("the data is %s\n",mUdpData);
     // 用户数据
@@ -134,9 +183,9 @@ void PcapParser::ipDecode(const char* buf)
     uint16_t ipPackLen = ntohs(ipHeader->TotalLen);
     //printf("%x",ipHeader->SrcIP);
 
-
-
     printf("[%s]->[%s] proto:%#x ipPackLen=%d packIdx=%d\n", srcIp, dstIp, ipHeader->Protocol, ipPackLen, mPackIndex);
+    packs->srcIP = QString(srcIp);
+    packs->dstIP = QString(dstIp);
 
     if (0 != ipFilter(srcIp, dstIp))
     {
@@ -225,15 +274,22 @@ void PcapParser::parse(const char* filename)
 
     size_t proto_offset = 0;
     mPackIndex = 0;
+
+    packs = new Pack_Node ;
+    root = packs;
+    packs->id = 0;
     while (offset < fileSize)
     {
         // pcap 包头
         Pcap_pkthdr* pcapHeader = (Pcap_pkthdr*)(buf + offset);
         proto_offset = offset + sizeof(Pcap_pkthdr);
 
-        // arp协议头
+        // 以太网协议头
         EthnetHeader_t* ethHeader = (EthnetHeader_t*)(buf + proto_offset);
         proto_offset += sizeof(EthnetHeader_t);
+
+        packs->next = new Pack_Node;
+        packs = packs->next;
 
         uint16_t protocol = ntohs(ethHeader->protoType);
 
@@ -243,12 +299,15 @@ void PcapParser::parse(const char* filename)
                ethHeader->dstMac[0], ethHeader->dstMac[1], ethHeader->dstMac[2], ethHeader->dstMac[3], ethHeader->dstMac[4], ethHeader->dstMac[5],
                protocol);
 
+        packs->srcMAC=uncharToQstring(ethHeader->srcMac,6);
+        packs->dstMAC=uncharToQstring(ethHeader->dstMac,6);
+
         // ip 协议
         if (protocol == 0x0800)
         {
             ipDecode(buf + proto_offset);
         }
-        else
+        else//ARP协议未完成，这里还有待补充
         {
             printf("[%s:%d]unsupported protocol %#x\n", __FILE__, __LINE__,
                    protocol);
@@ -256,6 +315,7 @@ void PcapParser::parse(const char* filename)
 
         offset += (pcapHeader->caplen + sizeof(Pcap_pkthdr));
         mPackIndex++;
+        packs->id = mPackIndex;
     }
 
     printf("total package count:%d\n", mPackIndex);
