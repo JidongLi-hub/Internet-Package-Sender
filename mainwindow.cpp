@@ -10,7 +10,7 @@ Pack_Node *packs;//读入的包链表变动结点
 //析构函数用来释放存储了包文件的那部分空间，避免内存泄漏
 MainWindow::~MainWindow()
 {
-
+    delete ui;
     while(root!=NULL)
     {
         packs = root;
@@ -18,7 +18,6 @@ MainWindow::~MainWindow()
         delete packs;
     }
     packs = root = NULL;
-    delete ui;
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -47,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
     choose_protocol->addButton(ui->tcp);
     choose_protocol->addButton(ui->udp);
     choose_protocol->addButton(ui->icmp);
-    choose_protocol->addButton(ui->ip);
     choose_protocol->addButton(ui->arp);
 
     //设置选择特定协议后，不需要输入的内容项
@@ -108,11 +106,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     });
-    connect(ui->ip,&QRadioButton::clicked,[this]()
-    {
-        ui->srcMAC->setPlaceholderText("此项无需填写");
-        ui->dstMAC->setPlaceholderText("此项无需填写");
-    });
     connect(ui->arp,&QRadioButton::clicked,[this]()
     {
         ui->sport->clear();
@@ -144,7 +137,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->package_table->setVisible(false);
     //表格双击打开包
     connect(ui->package_table, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(DoubleClicked(const QModelIndex &)));
-
 }
 void MainWindow::DoubleClicked(const QModelIndex &index)
 {
@@ -169,6 +161,10 @@ void MainWindow::DoubleClicked(const QModelIndex &index)
         ui->srcMAC->setText(temp->srcMAC);
         ui->dstMAC->setText(temp->dstMAC);
         ui->data->setText(temp->data);
+        char msg[50];
+        sprintf(msg,"已打开数据包%d  协议：",num);
+        QString qmsg = QString(msg)+temp->protocol;
+        ui->terminal->setText(qmsg);
 
     }
     else if(temp->protocol == "UDP")
@@ -181,17 +177,40 @@ void MainWindow::DoubleClicked(const QModelIndex &index)
         ui->srcMAC->setText(temp->srcMAC);
         ui->dstMAC->setText(temp->dstMAC);
         ui->data->setText(temp->data);
+        char msg[50];
+        sprintf(msg,"已打开数据包%d  协议：",num);
+        QString qmsg = QString(msg)+temp->protocol;
+        ui->terminal->setText(qmsg);
     }
     else if(temp->protocol == "ICMP")
     {
-
+        ui->icmp->setChecked(true);
+        ui->srcIP->setText(temp->srcIP);
+        ui->dstIP->setText(temp->dstIP);
+        char msg[50];
+        sprintf(msg,"已打开数据包%d  协议：",num);
+        QString qmsg = QString(msg)+temp->protocol;
+        ui->terminal->setText(qmsg);
     }
     else if(temp->protocol == "ARP")
     {
-
+        ui->arp->setChecked(true);
+        ui->srcMAC->setText(temp->srcMAC);
+        ui->dstMAC->setText(temp->dstMAC);
+        char msg[50];
+        sprintf(msg,"已打开数据包%d  协议：",num);
+        QString qmsg = QString(msg)+temp->protocol;
+        ui->terminal->setText(qmsg);
     }
-
     ui->package_table->setVisible(false);
+    //释放此次存包所申请的空间
+    while(root!=NULL)
+    {
+        packs = root;
+        root = root->next;
+        delete packs;
+    }
+    packs = root = NULL;
 }
 
 //打开文件函数，打开一个pcap文件，并创建一个对象
@@ -216,39 +235,76 @@ void MainWindow::Open()
         qDebug() << parser.getCount();
         model = new QStandardItemModel(parser.packnum(),3,this);
         QStringList  h_lables,v_lables;
-        h_lables<<"source" << "destination" << "protocol";
+        h_lables<<"Source" << "Destination" << "Protocol";
         model->setHorizontalHeaderLabels(h_lables);
         for(unsigned int i=1;i<=parser.packnum();i++)
         {
             v_lables<<QString::number(i);
         }
         model->setVerticalHeaderLabels(v_lables);
-        ui->package_table->setModel(model);
-        ui->package_table->setVisible(true);
 
+        ui->package_table->setModel(model);
+        //表格背景色交替
+        ui->package_table->setAlternatingRowColors(true);
+        //根据空间改变列宽
+        ui->package_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        //只读
+        ui->package_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        ui->package_table->setVisible(true);      
+        ui->package_table->setFont(QFont("song", 14));
+        ui->package_table->setShowGrid(true);
+
+        ui->package_table->horizontalHeader()->setFont(QFont("song", 18));
+        QFont font =  ui->package_table->horizontalHeader()->font();
+        font.setBold(true);
+        ui->package_table->horizontalHeader()->setFont(font);
+        ui->package_table->horizontalHeader()->setStyleSheet("QHeaderView::section{background:lightblue;}");
+
+        ui->package_table->verticalHeader()->setFont(QFont("song", 18));
+        font =  ui->package_table->verticalHeader()->font();
+        font.setBold(true);
+        ui->package_table->verticalHeader()->setFont(font);
+        ui->package_table->verticalHeader()->setStyleSheet("QHeaderView::section{background:lightblue;}");
         //显示包的信息
         Pack_Node *temp = root->next;
         while(temp!=NULL)
         {
             if(temp->protocol == "TCP")
             {
-                model->setItem(temp->id-1,0,new QStandardItem(temp->srcIP+":"+temp->sport));
+                model->setItem(temp->id-1,0,new QStandardItem(temp->srcIP+":"+temp->sport));                
+                model->item(temp->id-1, 0)->setTextAlignment(Qt::AlignCenter);
                 model->setItem(temp->id-1,1,new QStandardItem(temp->dstIP+":"+temp->dport));
+                model->item(temp->id-1, 1)->setTextAlignment(Qt::AlignCenter);
                 model->setItem(temp->id-1,2,new QStandardItem(temp->protocol));
+                model->item(temp->id-1, 2)->setTextAlignment(Qt::AlignCenter);
             }
             else if(temp->protocol == "UDP")
             {
                 model->setItem(temp->id-1,0,new QStandardItem(temp->srcIP+":"+temp->sport));
+                model->item(temp->id-1, 0)->setTextAlignment(Qt::AlignCenter);
                 model->setItem(temp->id-1,1,new QStandardItem(temp->dstIP+":"+temp->dport));
+                model->item(temp->id-1, 1)->setTextAlignment(Qt::AlignCenter);
                 model->setItem(temp->id-1,2,new QStandardItem(temp->protocol));
+                model->item(temp->id-1, 2)->setTextAlignment(Qt::AlignCenter);
             }
             else if(temp->protocol == "ICMP")
             {
+                model->setItem(temp->id-1,0,new QStandardItem(temp->srcIP));
+                model->item(temp->id-1, 0)->setTextAlignment(Qt::AlignCenter);
+                model->setItem(temp->id-1,1,new QStandardItem(temp->dstIP));
+                model->item(temp->id-1, 1)->setTextAlignment(Qt::AlignCenter);
+                model->setItem(temp->id-1,2,new QStandardItem(temp->protocol));
+                model->item(temp->id-1, 2)->setTextAlignment(Qt::AlignCenter);
 
             }
             else if(temp->protocol == "ARP")
             {
-
+                model->setItem(temp->id-1,0,new QStandardItem(temp->srcMAC));
+                model->item(temp->id-1, 0)->setTextAlignment(Qt::AlignCenter);
+                model->setItem(temp->id-1,1,new QStandardItem(temp->dstMAC));
+                model->item(temp->id-1, 1)->setTextAlignment(Qt::AlignCenter);
+                model->setItem(temp->id-1,2,new QStandardItem(temp->protocol));
+                model->item(temp->id-1, 2)->setTextAlignment(Qt::AlignCenter);
             }
             temp = temp->next;
         }
@@ -551,12 +607,6 @@ void MainWindow::send_clicked()
 
 
 
-
-    }
-
-    /*IP协议 */
-    else if (ui->ip->isChecked())
-    {
 
     }
 

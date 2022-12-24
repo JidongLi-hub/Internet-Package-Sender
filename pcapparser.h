@@ -77,11 +77,11 @@ struct TCPHeader_t
 
 struct ICMPHeader_t
 {
-    unsigned char type;
-    unsigned char code;
-    unsigned short CheckSum;
-    unsigned short icmp_id;
-    unsigned short icmp_seq;
+    unsigned char type;     //类型
+    unsigned char code;     //代码
+    unsigned short CheckSum;    //校验和
+    unsigned short icmp_id;     //标识符
+    unsigned short icmp_seq;    //序号
 
 };
 

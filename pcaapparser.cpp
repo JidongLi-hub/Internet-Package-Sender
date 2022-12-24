@@ -24,7 +24,22 @@ QString uncharToQstring(unsigned char * id,int len)
         msg.append(temp);
         j++;
     }
+    return msg;
+}
+//unsigned char转QString的mac地址带-
+QString UncharToQstring(unsigned char * id,int len)
+{
+    QString temp,msg;
+    int j = 0;
 
+    while (j<len)
+    {
+        temp = QString("%1").arg((int)id[j], 2, 16, QLatin1Char('0'));
+        msg.append(temp);
+        msg.append("-");
+        j++;
+    }
+    msg.chop(1);
     return msg;
 }
 
@@ -47,10 +62,6 @@ PCSTR WSAAPI inet_ntop(INT Family,const VOID *pAddr,PSTR pStringBuf, size_t  Str
     }
     else if(Family == AF_INET)//
     {
-        //struct in_addr a;
-        //memcpy(&a,pAddr,sizeof(struct in_addr));
-        //pStringBuf = inet_ntoa(a);
-        //以上是就有实现，貌似char[]无法=一个字符串
         struct in_addr a;
         memcpy(&a,pAddr,sizeof(struct in_addr));
         strcpy(pStringBuf,inet_ntoa(a));
@@ -211,6 +222,7 @@ void PcapParser::ipDecode(const char* buf)
 
 void PcapParser::icmpDecode(const char* buf,int len)
 {
+    packs->protocol = "ICMP";
     int offset = 0;
     ICMPHeader_t* icmpHeader = (ICMPHeader_t*)(buf + offset);
     offset += sizeof(ICMPHeader_t);
@@ -232,9 +244,6 @@ void PcapParser::icmpDecode(const char* buf,int len)
         memcpy(mUdpData, mUdpData + usedLen, usedLen);
         mIcmpLen -= usedLen;
     }
-
-
-
 }
 
 void PcapParser::parse(const char* filename)
@@ -299,16 +308,16 @@ void PcapParser::parse(const char* filename)
                ethHeader->dstMac[0], ethHeader->dstMac[1], ethHeader->dstMac[2], ethHeader->dstMac[3], ethHeader->dstMac[4], ethHeader->dstMac[5],
                protocol);
 
-        packs->srcMAC=uncharToQstring(ethHeader->srcMac,6);
-        packs->dstMAC=uncharToQstring(ethHeader->dstMac,6);
-
+        packs->srcMAC=UncharToQstring(ethHeader->srcMac,6);
+        packs->dstMAC=UncharToQstring(ethHeader->dstMac,6);
         // ip 协议
         if (protocol == 0x0800)
         {
             ipDecode(buf + proto_offset);
         }
-        else//ARP协议未完成，这里还有待补充
+        else if (protocol == 0x0806)//ARP协议未完成，这里还有待补充
         {
+            packs->protocol = "ARP";
             printf("[%s:%d]unsupported protocol %#x\n", __FILE__, __LINE__,
                    protocol);
         }

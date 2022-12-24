@@ -11,6 +11,7 @@
 #include "pcapparser.h"
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
 #include <QTableView>
 #include <QStandardItemModel>
 
