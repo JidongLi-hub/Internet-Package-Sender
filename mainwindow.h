@@ -40,7 +40,9 @@ using namespace std;
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
+void ifprint(pcap_if_t *d);
+char *iptos(u_long in);
+int getmac(pcap_t* ha, char* pStr);
 class MsgParser : public PcapParser
 {
 private:

@@ -3,10 +3,22 @@
 #include "pcap.h"
 #include "QMessageBox"
 #include <QButtonGroup>
+#include "pcap.h"
+#include "pcap-int.h"
 
+#include <ntddndis.h>
+#pragma     comment(lib, "packet.lib")
+
+#ifndef WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#else
+#include <winsock.h>
+#endif
 Pack_Node *root;//读入的包链表根结点
 Pack_Node *packs;//读入的包链表变动结点
-
+string localMAC;
+string localIP;
 //析构函数用来释放存储了包文件的那部分空间，避免内存泄漏
 MainWindow::~MainWindow()
 {
@@ -54,9 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->srcMAC->clear();
         ui->srcMAC->setPlaceholderText("此项无需填写");
         ui->dstMAC->clear();
-        ui->dstMAC->setPlaceholderText("此项无需填写");
-
-        ui->ttl->setPlaceholderText("");
+        ui->ttl->setText("128");
         ui->sign->setPlaceholderText("");
         ui->seq->setPlaceholderText("");
         ui->ack->setPlaceholderText("");
@@ -65,15 +75,22 @@ MainWindow::MainWindow(QWidget *parent)
         ui->dport->setPlaceholderText("");
         ui->srcIP->setPlaceholderText("");
         ui->srcIP->setPlaceholderText("");
+        int netnum = ui->comboBox_netcard->currentIndex()+1;
+        /* 跳转到选中的适配器 */
+        printf("%d\n",netnum);
+        int i;   //for循环变量
+        for (d = alldevs, i = 0; i < netnum - 1; d = d->next, i++);
+        ifprint(d);
+         ui->srcMAC->setText(QString::fromStdString(localMAC));
+         ui->srcIP->setText(QString::fromStdString(localIP));
     });
     connect(ui->udp,&QRadioButton::clicked,[this]()
     {
         ui->srcMAC->clear();
         ui->srcMAC->setPlaceholderText("此项无需填写");
         ui->dstMAC->clear();
-        ui->dstMAC->setPlaceholderText("此项无需填写");
         ui->ttl->clear();
-        ui->ttl->setPlaceholderText("128");
+        ui->ttl->setText("128");
         ui->sign->clear();
         ui->sign->setPlaceholderText("此项无需填写");
         ui->seq->clear();
@@ -87,22 +104,47 @@ MainWindow::MainWindow(QWidget *parent)
         ui->dport->setPlaceholderText("");
         ui->srcIP->setPlaceholderText("");
         ui->srcIP->setPlaceholderText("");
+
+        int netnum = ui->comboBox_netcard->currentIndex()+1;
+        /* 跳转到选中的适配器 */
+        printf("%d\n",netnum);
+        int i;   //for循环变量
+        for (d = alldevs, i = 0; i < netnum - 1; d = d->next, i++);
+        ifprint(d);
+         ui->srcMAC->setText(QString::fromStdString(localMAC));
+         ui->srcIP->setText(QString::fromStdString(localIP));
     });
     connect(ui->icmp,&QRadioButton::clicked,[this]()
     {
         ui->srcMAC->clear();
         ui->srcMAC->setPlaceholderText("此项无需填写");
         ui->dstMAC->clear();
-        ui->dstMAC->setPlaceholderText("此项无需填写");
         ui->sport->clear();
         ui->sport->setPlaceholderText("此项无需填写");
         ui->dport->clear();
         ui->dport->setPlaceholderText("此项无需填写");
         ui->ttl->clear();
-        ui->ttl->setPlaceholderText("128");
+        ui->ttl->setText("128");//ICMP TTL默认为128
+        ui->sign->clear();
+        ui->sign->setPlaceholderText("此项无需填写");
+        ui->seq->clear();
+        ui->seq->setPlaceholderText("此项无需填写");
+        ui->ack->clear();
+        ui->ack->setPlaceholderText("此项无需填写");
+        ui->window->clear();
+        ui->window->setPlaceholderText("此项无需填写");
 
         ui->srcIP->setText("");
         ui->dstIP->setText("");
+
+        int netnum = ui->comboBox_netcard->currentIndex()+1;
+        /* 跳转到选中的适配器 */
+        printf("%d\n",netnum);
+        int i;   //for循环变量
+        for (d = alldevs, i = 0; i < netnum - 1; d = d->next, i++);
+        ifprint(d);
+         ui->srcMAC->setText(QString::fromStdString(localMAC));
+         ui->srcIP->setText(QString::fromStdString(localIP));
 
 
     });
@@ -127,6 +169,15 @@ MainWindow::MainWindow(QWidget *parent)
         ui->dstMAC->setPlaceholderText("");
         ui->srcIP->setPlaceholderText("");
         ui->srcIP->setPlaceholderText("");
+
+        int netnum = ui->comboBox_netcard->currentIndex()+1;
+        /* 跳转到选中的适配器 */
+        printf("%d\n",netnum);
+        int i;   //for循环变量
+        for (d = alldevs, i = 0; i < netnum - 1; d = d->next, i++);
+        ifprint(d);
+         ui->srcMAC->setText(QString::fromStdString(localMAC));
+         ui->srcIP->setText(QString::fromStdString(localIP));
 
     });
 
@@ -329,7 +380,81 @@ unsigned short CheckSum(unsigned short * buffer, int size)
     return (unsigned short)(~cksum);
 }
 
+void ifprint(pcap_if_t *d)//发现本机选定网卡的IP和MAC，用到了全局变量
+{
+  pcap_addr_t *a;
+  pcap_t      *hadapter;
+  char          pMAC[20];
+  //printf("%s\n",d->name);
+  //if (d->description)
+    //printf("\tDescription: %s\n",d->description);
+  //printf("\tLoopback: %s\n",(d->flags & PCAP_IF_LOOPBACK)?"yes":"no");
+  hadapter = pcap_open_live(d->name, 0, 0, 0, 0);
+  if(getmac(hadapter, pMAC)){
 
+      localMAC = pMAC;
+      //printf("\tMAC Address: %s\n", pMAC);
+  }
+  pcap_close(hadapter);
+  for(a=d->addresses;a;a=a->next) {
+
+    switch(a->addr->sa_family)
+    {
+      case AF_INET:
+        //printf("\tAddress Family Name: AF_INET\n");
+        if (a->addr)
+           localIP = iptos(((struct sockaddr_in
+                             *)a->addr)->sin_addr.s_addr);
+          //printf("\tAddress: %s\n",iptos(((struct sockaddr_in
+//*)a->addr)->sin_addr.s_addr));
+        /*if (a->netmask)
+          printf("\tNetmask: %s\n",iptos(((struct sockaddr_in
+*)a->netmask)->sin_addr.s_addr));
+        if (a->broadaddr)
+          printf("\tBroadcast Address: %s\n",iptos(((struct sockaddr_in
+*)a->broadaddr)->sin_addr.s_addr));
+        if (a->dstaddr)
+          printf("\tDestination Address: %s\n",iptos(((struct
+sockaddr_in *)a->dstaddr)->sin_addr.s_addr));
+*/
+        break;
+      default:
+       // printf("\tAddress Family Name: Unknown\n");
+        break;
+    }
+  }
+}
+
+#define IPTOSBUFFERS    12
+char *iptos(u_long in)//ifprint的工具函数，用于转ip地址为自字符串
+{
+    static char output[IPTOSBUFFERS][3*4+3+1];
+    static short which;
+    u_char *p;
+
+    p = (u_char *)&in;
+    which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
+    sprintf(output[which], "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+    return output[which];
+}
+int getmac(pcap_t* ha, char* pStr)//ifprint的工具函数，用于得到合法MAC地址
+{
+  PPACKET_OID_DATA    pOidData;
+  CHAR pAddr[sizeof(PACKET_OID_DATA)+5];
+  ZeroMemory(pAddr, sizeof(PACKET_OID_DATA)+5);
+  pOidData = (PPACKET_OID_DATA) pAddr;
+  pOidData->Oid = OID_802_3_CURRENT_ADDRESS;
+  pOidData->Length = 6;
+  if(PacketRequest(ha->adapter, FALSE, pOidData))
+  {
+      sprintf(pStr, "%.02X:%.02X:%.02X:%.02X:%.02X:%.02X",
+          pOidData->Data[0],pOidData->Data[1],pOidData->Data[2],
+          pOidData->Data[3],pOidData->Data[4],pOidData->Data[5]);
+  }else{
+      return 0;
+  }
+  return 1;
+}
 void MainWindow::send_clicked()
 {
     int netnum = ui->comboBox_netcard->currentIndex()+1;
@@ -349,6 +474,7 @@ void MainWindow::send_clicked()
         /* 释放设备列表 */
         pcap_freealldevs(alldevs);
     }
+
 
     /*TCP协议 */
     if (ui->tcp->isChecked()) {
