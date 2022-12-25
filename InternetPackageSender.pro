@@ -22,7 +22,8 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.h \
-    pcapparser.h
+    pcapparser.h \
+    pcap-int.h
 
 FORMS += \
     mainwindow.ui
