@@ -90,11 +90,11 @@ void PcapParser::tcpDecode(const char* buf, int len)
     uint32_t ack = ntohl(tcpHeader->AckNo);
     //这里要注意网络字节顺序与X86字节顺序要做转换
 
-    int s = srcPort;
-    int d = dstPort;
-    int se = seq;
-    int ac = ack;
-    int window = win;
+    unsigned int s = srcPort;
+    unsigned int d = dstPort;
+    unsigned int se = seq;
+    unsigned int ac = ack;
+    unsigned int window = win;
 
     packs->sport = QString::number(s);
     packs->dport = QString::number(d);
@@ -143,8 +143,8 @@ void PcapParser::udpDecode(const char* buf, int len)
     uint16_t dstPort = ntohs(udpHeader->DstPort);
     uint16_t packLen = ntohs(udpHeader->Length);
 
-    int s = srcPort;
-    int d = dstPort;
+    unsigned int s = srcPort;
+    unsigned int d = dstPort;
 
     packs->sport = QString::number(s);
     packs->dport = QString::number(d);
