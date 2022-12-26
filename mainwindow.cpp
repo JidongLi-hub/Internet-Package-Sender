@@ -531,7 +531,7 @@ void MainWindow::send_clicked()
         th.th_sport = htons(ui->sport->text().toInt());//源端口
         th.th_dport = htons(ui->dport->text().toInt());//目的端口
         th.th_seq = htonl(ui->seq->text().toInt());//序列号
-        th.th_ack = ui->ack->text().toInt();//确认号
+        th.th_ack = htonl(ui->ack->text().toInt());//确认号
         th.th_lenres = (sizeof(TcpHeader) / 4 << 4 | 0);//tcp长度
         th.th_flag = (u_char)ui->sign->text().toInt();//标志
         th.th_win = htons(ui->window->text().toInt());//窗口大小
@@ -746,12 +746,12 @@ void MainWindow::send_clicked()
         ArpHeader ah;
         //赋值MAC地址
         memset(eh.DestMAC, 0xff, 6);   //以太网首部目的MAC地址，全为广播地址
-        eh.SourMAC[0] = 0x80;
-        eh.SourMAC[1] = 0x2b;
-        eh.SourMAC[2] = 0xf9;
-        eh.SourMAC[3] = 0x72;
-        eh.SourMAC[4] = 0x5f;
-        eh.SourMAC[5] = 0xad;
+        eh.SourMAC[0] = 0x8c;
+        eh.SourMAC[1] = 0xc6;
+        eh.SourMAC[2] = 0x81;
+        eh.SourMAC[3] = 0x96;
+        eh.SourMAC[4] = 0x51;
+        eh.SourMAC[5] = 0x09;
         memcpy(ah.smac, eh.SourMAC, 6);   //ARP字段源MAC地址
         memset(ah.dmac, 0xff, 6);   //ARP字段目的MAC地址
         QString te1 = ui->srcIP->text();
