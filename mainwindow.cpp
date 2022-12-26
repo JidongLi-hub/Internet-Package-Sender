@@ -665,12 +665,12 @@ void MainWindow::send_clicked()
 
         //封包
         //以太网
-        eh.DestMAC[0] = 0x9c;
-        eh.DestMAC[1] = 0x1d;
-        eh.DestMAC[2] = 0x36;
-        eh.DestMAC[3] = 0xec;
-        eh.DestMAC[4] = 0x8b;
-        eh.DestMAC[5] = 0xc2;
+        eh.DestMAC[0] = 0xdc;
+        eh.DestMAC[1] = 0x73;
+        eh.DestMAC[2] = 0x85;
+        eh.DestMAC[3] = 0x3c;
+        eh.DestMAC[4] = 0x7d;
+        eh.DestMAC[5] = 0x3c;
         eh.SourMAC[0] = 0x8c;
         eh.SourMAC[1] = 0xc6;
         eh.SourMAC[2] = 0x81;
