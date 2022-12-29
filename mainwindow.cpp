@@ -746,8 +746,6 @@ void MainWindow::send_clicked()
         unsigned char ip[4] = { 0x01,0x02,0x03,0x04 };
         EthernetHeader eh;
         ArpHeader ah;
-        QString localmacstr = ui->srcMAC->text();
-        QString localipstr = ui->srcIP->text();
         //赋值MAC地址
         memset(eh.DestMAC, 0xff, 6);   //以太网首部目的MAC地址，全为广播地址
         eh.SourMAC[0] = 0x8c;
@@ -757,7 +755,7 @@ void MainWindow::send_clicked()
         eh.SourMAC[4] = 0x51;
         eh.SourMAC[5] = 0x09;
         memcpy(ah.smac, eh.SourMAC, 6);   //ARP字段源MAC地址
-        memset(ah.dmac, 0xff, 6);   //ARP字段目的MAC地址
+        memset(ah.dmac, 0x00, 6);   //ARP字段目的MAC地址
         QString te1 = ui->srcIP->text();
         QString te2 = ui->dstIP->text();;
         int ah1 = stol(te1.section('.', 0, 0).toStdString());
