@@ -26,7 +26,7 @@ QString uncharToQstring(unsigned char * id,int len)
     }
     return msg;
 }
-//unsigned char转QString的mac地址带-
+//unsigned char转QString的mac地址带:
 QString UncharToQstring(unsigned char * id,int len)
 {
     QString temp,msg;
@@ -36,7 +36,7 @@ QString UncharToQstring(unsigned char * id,int len)
     {
         temp = QString("%1").arg((int)id[j], 2, 16, QLatin1Char('0'));
         msg.append(temp);
-        msg.append("-");
+        msg.append(":");
         j++;
     }
     msg.chop(1);
@@ -318,6 +318,18 @@ void PcapParser::parse(const char* filename)
         else if (protocol == 0x0806)//ARP协议未完成，这里还有待补充
         {
             packs->protocol = "ARP";
+            ARPdata *Arpdata = (ARPdata *)(buf+proto_offset);
+            char srcIp[32] = { 0 };
+            char dstIp[32] = { 0 };
+            inet_ntop(AF_INET, &Arpdata->srcIP, srcIp, sizeof(srcIp));
+            inet_ntop(AF_INET, &Arpdata->dstIP, dstIp, sizeof(dstIp));
+            packs->srcIP = QString(srcIp);
+            packs->dstIP = QString(dstIp);
+            packs->srcMAC = UncharToQstring(Arpdata->srcMac,6);
+            packs->dstMAC = UncharToQstring(Arpdata->dstMac,6);
+        }
+        else
+        {
             printf("[%s:%d]unsupported protocol %#x\n", __FILE__, __LINE__,
                    protocol);
         }

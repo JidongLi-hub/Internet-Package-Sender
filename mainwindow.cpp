@@ -247,7 +247,9 @@ void MainWindow::DoubleClicked(const QModelIndex &index)
     {
         ui->arp->setChecked(true);
         ui->srcMAC->setText(temp->srcMAC);
+        ui->srcIP->setText(temp->srcIP);
         ui->dstMAC->setText(temp->dstMAC);
+        ui->dstIP->setText(temp->dstIP);
         char msg[50];
         sprintf(msg,"已打开数据包%d  协议：",num);
         QString qmsg = QString(msg)+temp->protocol;
@@ -744,6 +746,8 @@ void MainWindow::send_clicked()
         unsigned char ip[4] = { 0x01,0x02,0x03,0x04 };
         EthernetHeader eh;
         ArpHeader ah;
+        QString localmacstr = ui->srcMAC->text();
+        QString localipstr = ui->srcIP->text();
         //赋值MAC地址
         memset(eh.DestMAC, 0xff, 6);   //以太网首部目的MAC地址，全为广播地址
         eh.SourMAC[0] = 0x8c;

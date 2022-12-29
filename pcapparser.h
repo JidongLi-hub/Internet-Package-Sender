@@ -38,6 +38,20 @@ struct EthnetHeader_t
     uint16_t protoType;
 };
 
+//ARP数据包数据内容格式
+struct ARPdata
+{
+    unsigned short hardwaretype;//两字节硬件类型，以太网是1
+    unsigned short protocoltype;//两字节协议地址类型，0x0800表示IP地址
+    unsigned char hardlen;
+    unsigned char prolen;
+    unsigned short operation;//ARP 请求为 1，ARP 响应为 2，RARP 请求为 3，RARP 响应为 4。
+    unsigned char srcMac[6];
+    uint32_t srcIP;
+    unsigned char dstMac[6];
+    uint32_t dstIP;
+};
+
 //IP数据报头 20字节
 struct IPHeader_t
 {
