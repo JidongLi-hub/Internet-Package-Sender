@@ -17,8 +17,10 @@
 #endif
 Pack_Node *root;//读入的包链表根结点
 Pack_Node *packs;//读入的包链表变动结点
+//全局变量用于获取本地IP和MAC
 string localMAC;
 string localIP;
+unsigned char    localData[6];
 //析构函数用来释放存储了包文件的那部分空间，避免内存泄漏
 MainWindow::~MainWindow()
 {
@@ -387,15 +389,11 @@ void ifprint(pcap_if_t *d)//发现本机选定网卡的IP和MAC，用到了全�
   pcap_addr_t *a;
   pcap_t      *hadapter;
   char          pMAC[20];
-  //printf("%s\n",d->name);
-  //if (d->description)
-    //printf("\tDescription: %s\n",d->description);
-  //printf("\tLoopback: %s\n",(d->flags & PCAP_IF_LOOPBACK)?"yes":"no");
   hadapter = pcap_open_live(d->name, 0, 0, 0, 0);
   if(getmac(hadapter, pMAC)){
 
       localMAC = pMAC;
-      //printf("\tMAC Address: %s\n", pMAC);
+      printf("\tMAC Address: %s\n", pMAC);
   }
   pcap_close(hadapter);
   for(a=d->addresses;a;a=a->next) {
@@ -447,8 +445,15 @@ int getmac(pcap_t* ha, char* pStr)//ifprint的工具函数，用于得到合法M
   pOidData = (PPACKET_OID_DATA) pAddr;
   pOidData->Oid = OID_802_3_CURRENT_ADDRESS;
   pOidData->Length = 6;
+
   if(PacketRequest(ha->adapter, FALSE, pOidData))
   {
+      localData[0] = pOidData->Data[0];
+      localData[1] = pOidData->Data[1];
+      localData[2] = pOidData->Data[2];
+      localData[3] = pOidData->Data[3];
+      localData[4] = pOidData->Data[4];
+      localData[5] = pOidData->Data[5];
       sprintf(pStr, "%.02X:%.02X:%.02X:%.02X:%.02X:%.02X",
           pOidData->Data[0],pOidData->Data[1],pOidData->Data[2],
           pOidData->Data[3],pOidData->Data[4],pOidData->Data[5]);
@@ -491,18 +496,18 @@ void MainWindow::send_clicked()
 
         //封包
         //以太网
-        eh.DestMAC[0] = 0x9c;
-        eh.DestMAC[1] = 0x1d;
-        eh.DestMAC[2] = 0x36;
-        eh.DestMAC[3] = 0xec;
-        eh.DestMAC[4] = 0x8b;
-        eh.DestMAC[5] = 0xc2;
-        eh.SourMAC[0] = 0x8c;
-        eh.SourMAC[1] = 0xc6;
-        eh.SourMAC[2] = 0x81;
-        eh.SourMAC[3] = 0x96;
-        eh.SourMAC[4] = 0x51;
-        eh.SourMAC[5] = 0x09;
+        eh.DestMAC[0] = 0Xff;
+        eh.DestMAC[1] = 0Xff;
+        eh.DestMAC[2] = 0Xff;
+        eh.DestMAC[3] = 0Xff;
+        eh.DestMAC[4] = 0Xff;
+        eh.DestMAC[5] = 0Xff;
+        eh.SourMAC[0] = localData[0];
+        eh.SourMAC[1] = localData[1];
+        eh.SourMAC[2] = localData[2];
+        eh.SourMAC[3] = localData[3];
+        eh.SourMAC[4] = localData[4];
+        eh.SourMAC[5] = localData[5];
         eh.EthType = htons(ETH_IP);
 
         //ip头部
@@ -580,18 +585,18 @@ void MainWindow::send_clicked()
         strcpy(temp, bb.c_str());//temp为传输数据
         //以太网
         eh.EthType = htons(ETH_IP);
-        eh.DestMAC[0] = 0x8c;
-        eh.DestMAC[1] = 0xa6;
-        eh.DestMAC[2] = 0xdf;
-        eh.DestMAC[3] = 0x94;
-        eh.DestMAC[4] = 0x94;
-        eh.DestMAC[5] = 0x29;
-        eh.SourMAC[0] = 0x80;
-        eh.SourMAC[1] = 0x2b;
-        eh.SourMAC[2] = 0xf9;
-        eh.SourMAC[3] = 0x72;
-        eh.SourMAC[4] = 0x5f;
-        eh.SourMAC[5] = 0xad;
+        eh.DestMAC[0] = 0Xff;
+        eh.DestMAC[1] = 0Xff;
+        eh.DestMAC[2] = 0Xff;
+        eh.DestMAC[3] = 0Xff;
+        eh.DestMAC[4] = 0Xff;
+        eh.DestMAC[5] = 0Xff;
+        eh.SourMAC[0] = localData[0];
+        eh.SourMAC[1] = localData[1];
+        eh.SourMAC[2] = localData[2];
+        eh.SourMAC[3] = localData[3];
+        eh.SourMAC[4] = localData[4];
+        eh.SourMAC[5] = localData[5];
 
         //ip
         ih.h_verlen = (4 << 4 | sizeof(ih) / sizeof(unsigned int));//ip数据头总长度除以4
@@ -667,18 +672,18 @@ void MainWindow::send_clicked()
 
         //封包
         //以太网
-        eh.DestMAC[0] = 0xdc;
-        eh.DestMAC[1] = 0x73;
-        eh.DestMAC[2] = 0x85;
-        eh.DestMAC[3] = 0x3c;
-        eh.DestMAC[4] = 0x7d;
-        eh.DestMAC[5] = 0x3c;
-        eh.SourMAC[0] = 0x8c;
-        eh.SourMAC[1] = 0xc6;
-        eh.SourMAC[2] = 0x81;
-        eh.SourMAC[3] = 0x96;
-        eh.SourMAC[4] = 0x51;
-        eh.SourMAC[5] = 0x09;
+        eh.DestMAC[0] = 0Xff;
+        eh.DestMAC[1] = 0Xff;
+        eh.DestMAC[2] = 0Xff;
+        eh.DestMAC[3] = 0Xff;
+        eh.DestMAC[4] = 0Xff;
+        eh.DestMAC[5] = 0Xff;
+        eh.SourMAC[0] = localData[0];
+        eh.SourMAC[1] = localData[1];
+        eh.SourMAC[2] = localData[2];
+        eh.SourMAC[3] = localData[3];
+        eh.SourMAC[4] = localData[4];
+        eh.SourMAC[5] = localData[5];
         eh.EthType = htons(ETH_IP);
 
         //ip头部
@@ -748,14 +753,14 @@ void MainWindow::send_clicked()
         ArpHeader ah;
         //赋值MAC地址
         memset(eh.DestMAC, 0xff, 6);   //以太网首部目的MAC地址，全为广播地址
-        eh.SourMAC[0] = 0x8c;
-        eh.SourMAC[1] = 0xc6;
-        eh.SourMAC[2] = 0x81;
-        eh.SourMAC[3] = 0x96;
-        eh.SourMAC[4] = 0x51;
-        eh.SourMAC[5] = 0x09;
+        eh.SourMAC[0] = localData[0];
+        eh.SourMAC[1] = localData[1];
+        eh.SourMAC[2] = localData[2];
+        eh.SourMAC[3] = localData[3];
+        eh.SourMAC[4] = localData[4];
+        eh.SourMAC[5] = localData[5];
         memcpy(ah.smac, eh.SourMAC, 6);   //ARP字段源MAC地址
-        memset(ah.dmac, 0x00, 6);   //ARP字段目的MAC地址
+        memset(ah.dmac, 0xff, 6);   //ARP字段目的MAC地址
         QString te1 = ui->srcIP->text();
         QString te2 = ui->dstIP->text();;
         int ah1 = stol(te1.section('.', 0, 0).toStdString());
