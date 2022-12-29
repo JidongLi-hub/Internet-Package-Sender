@@ -321,7 +321,6 @@ void PcapParser::parse(const char* filename)
             printf("[%s:%d]unsupported protocol %#x\n", __FILE__, __LINE__,
                    protocol);
         }
-
         offset += (pcapHeader->caplen + sizeof(Pcap_pkthdr));
         mPackIndex++;
         packs->id = mPackIndex;
