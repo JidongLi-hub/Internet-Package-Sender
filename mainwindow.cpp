@@ -756,7 +756,6 @@ void MainWindow::send_clicked()
     {
         unsigned char sendbuf[42]; //arp包结构大小，42个字节
 
-        unsigned char ip[4] = { 0x01,0x02,0x03,0x04 };
         EthernetHeader eh;
         ArpHeader ah;
         //赋值MAC地址
@@ -768,7 +767,7 @@ void MainWindow::send_clicked()
         eh.SourMAC[4] = localData[4];
         eh.SourMAC[5] = localData[5];
         memcpy(ah.smac, eh.SourMAC, 6);   //ARP字段源MAC地址
-        memset(ah.dmac, 0xff, 6);   //ARP字段目的MAC地址
+        memset(ah.dmac, 0x00, 6);   //ARP字段目的MAC地址
         QString te1 = ui->srcIP->text();
         QString te2 = ui->dstIP->text();;
         int ah1 = stol(te1.section('.', 0, 0).toStdString());
