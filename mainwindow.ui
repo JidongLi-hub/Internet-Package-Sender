@@ -11,43 +11,31 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>PackageSender</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QComboBox" name="comboBox_netcard">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>150</x>
       <y>40</y>
       <width>1001</width>
       <height>41</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_netcard">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>50</y>
-      <width>80</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>选择网卡</string>
+    <property name="styleSheet">
+     <string notr="true">border-radius: 4px;
+background: rgb(241, 246, 253);
+border: 0.5px solid gray;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_sport">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>100</x>
       <y>170</y>
       <width>91</width>
       <height>51</height>
@@ -55,6 +43,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -75,6 +64,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -95,6 +85,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -115,6 +106,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -127,7 +119,7 @@
    <widget class="QLabel" name="label_ttl">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>110</x>
       <y>420</y>
       <width>71</width>
       <height>31</height>
@@ -135,6 +127,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -155,6 +148,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -178,6 +172,14 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;
+</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="dport">
     <property name="geometry">
@@ -192,6 +194,13 @@
      <font>
       <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="seq">
@@ -208,6 +217,13 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="ack">
     <property name="geometry">
@@ -222,6 +238,13 @@
      <font>
       <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="ttl">
@@ -238,6 +261,13 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="sign">
     <property name="geometry">
@@ -252,6 +282,13 @@
      <font>
       <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="window">
@@ -268,18 +305,26 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_window">
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>310</y>
+      <y>300</y>
       <width>71</width>
       <height>31</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -300,6 +345,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -320,13 +366,14 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string> 目的IP</string>
+     <string> 目的 IP</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="dstIP">
@@ -343,6 +390,13 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="srcIP">
     <property name="geometry">
@@ -358,6 +412,13 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_srcIP">
     <property name="geometry">
@@ -370,22 +431,23 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string> 源IP</string>
+     <string> 源 IP</string>
     </property>
    </widget>
    <widget class="QPushButton" name="send">
     <property name="geometry">
      <rect>
-      <x>780</x>
-      <y>550</y>
-      <width>161</width>
-      <height>81</height>
+      <x>750</x>
+      <y>540</y>
+      <width>241</width>
+      <height>101</height>
      </rect>
     </property>
     <property name="font">
@@ -393,8 +455,26 @@
       <pointsize>20</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border-radius: 14px;
+</string>
+    </property>
     <property name="text">
-     <string>发送</string>
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <activeon>blueplane.png</activeon>
+     </iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>100</width>
+      <height>350</height>
+     </size>
+    </property>
+    <property name="autoRepeatDelay">
+     <number>300</number>
     </property>
    </widget>
    <widget class="QRadioButton" name="tcp">
@@ -421,26 +501,6 @@
       <width>30</width>
       <height>30</height>
      </size>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_protocol">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>141</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>选择发送协议</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="udp">
@@ -532,6 +592,7 @@
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -555,6 +616,13 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="dstMAC">
     <property name="geometry">
@@ -570,18 +638,26 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 7px;
+padding: 0 10px;
+background: rgb(241, 246, 253);
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_srcMAC">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>90</x>
       <y>480</y>
-      <width>71</width>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>微软雅黑 Light</family>
       <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
@@ -605,6 +681,13 @@
       <pointsize>12</pointsize>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 8px;
+padding: 0 10px;
+background: white;
+selection-background-color: darkgray;</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="terminal">
     <property name="geometry">
@@ -619,6 +702,13 @@
      <font>
       <pointsize>12</pointsize>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid gray;
+border-radius: 8px;
+padding: 0 10px;
+background: white;
+selection-background-color: darkgray;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_terminal">
@@ -650,7 +740,105 @@
       <height>661</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="alternatingRowColors">
+     <bool>false</bool>
+    </property>
    </widget>
+   <widget class="QPushButton" name="card">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-radius: 9px;
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <activeon>blueplane.png</activeon>
+     </iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>100</width>
+      <height>350</height>
+     </size>
+    </property>
+    <property name="autoRepeatDelay">
+     <number>300</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_sport_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>100</y>
+      <width>151</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微软雅黑 Light</family>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>选择发送协议</string>
+    </property>
+   </widget>
+   <zorder>comboBox_netcard</zorder>
+   <zorder>label_sport</zorder>
+   <zorder>label_dport</zorder>
+   <zorder>label_seq</zorder>
+   <zorder>label_ack</zorder>
+   <zorder>label_ttl</zorder>
+   <zorder>label_sign</zorder>
+   <zorder>sport</zorder>
+   <zorder>dport</zorder>
+   <zorder>seq</zorder>
+   <zorder>ack</zorder>
+   <zorder>ttl</zorder>
+   <zorder>sign</zorder>
+   <zorder>window</zorder>
+   <zorder>label_window</zorder>
+   <zorder>label_data</zorder>
+   <zorder>label_dstIP</zorder>
+   <zorder>dstIP</zorder>
+   <zorder>srcIP</zorder>
+   <zorder>label_srcIP</zorder>
+   <zorder>send</zorder>
+   <zorder>tcp</zorder>
+   <zorder>udp</zorder>
+   <zorder>icmp</zorder>
+   <zorder>arp</zorder>
+   <zorder>label_dstMAC</zorder>
+   <zorder>srcMAC</zorder>
+   <zorder>dstMAC</zorder>
+   <zorder>label_srcMAC</zorder>
+   <zorder>data</zorder>
+   <zorder>terminal</zorder>
+   <zorder>label_terminal</zorder>
+   <zorder>card</zorder>
+   <zorder>label_sport_2</zorder>
+   <zorder>package_table</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -666,8 +854,6 @@
      <string>文件(&amp;E)</string>
     </property>
     <addaction name="action_Open"/>
-    <addaction name="action_New"/>
-    <addaction name="action_S"/>
    </widget>
    <addaction name="menu"/>
   </widget>

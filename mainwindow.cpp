@@ -190,6 +190,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->package_table->setVisible(false);
     //表格双击打开包
     connect(ui->package_table, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(DoubleClicked(const QModelIndex &)));
+
+    //发送按钮图片
+    QIcon icon(":/pic/blueplane.png");
+    ui->send->setIcon(icon);
+    QIcon icon1(":/pic/card.png");
+    ui->card->setIcon(icon1);
+    //this->setStyleSheet("QMainWindow {background-image:url(:/pic/blue.png)}");
+    this->setStyleSheet("QMainWindow {background-color:rgb(190, 216, 217)}");
 }
 void MainWindow::DoubleClicked(const QModelIndex &index)
 {

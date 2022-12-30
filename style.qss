@@ -1,0 +1,8 @@
+QLineEdit
+{
+border: 1px solid gray;//边框
+border-radius: 4px;//边框圆角
+padding: 0 8px;//内容与边框距离
+background: white;//背景颜色
+selection-background-color: darkgray;//所选内容的背景颜色
+}

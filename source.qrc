@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/pic">
+        <file>bg.jpeg</file>
+        <file>blueplane.png</file>
+        <file>blue.png</file>
+        <file>style.qss</file>
+        <file>card.png</file>
+        <file>iconn.ico</file>
+    </qresource>
+</RCC>

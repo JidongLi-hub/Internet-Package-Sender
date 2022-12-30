@@ -36,3 +36,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 //加入winpcap开发包
 INCLUDEPATH += "D:/WpdPack/Include"
 LIBS += "-LD:/WpdPack/Lib/x64" -lwpcap -lPacket -lws2_32 -lIphlpapi
+//添加图标
+RC_ICONS += icon.ico
+
+RESOURCES += \
+    source.qrc
